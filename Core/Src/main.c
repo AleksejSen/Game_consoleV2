@@ -52,7 +52,7 @@
 /* Private variables ---------------------------------------------------------*/
 
 /* USER CODE BEGIN PV */
-uint32_t adc_buff_x;
+uint32_t adc_buff[2];
 uint32_t adc_buff_y;
 uint32_t adc_x;
 uint32_t adc_y;
@@ -117,7 +117,7 @@ int main(void)
   /* USER CODE BEGIN WHILE */
 
 
-   HAL_ADC_Start_DMA(&hadc1, &adc_buff_x, 1);
+   HAL_ADC_Start_DMA(&hadc1, adc_buff, 2);
  //  HAL_ADC_Start_DMA(&hadc2, &adc_buff_y, 1);
 
  //  HAL_ADC_Start_IT(&hadc1);
@@ -164,9 +164,14 @@ int main(void)
 
 
 	  itoa(adc_x, adc_x_str, 10);
+	  itoa(adc_y, adc_y_str, 10);
 
 	  ST7735_WriteString(60, 60, adc_x_str, Font_11x18, BLACK,BLACK);
 	  ST7735_WriteString(60, 60, adc_x_str, Font_11x18, RED,BLACK);
+      ST7735_WriteString(60, 80, adc_y_str, Font_11x18, BLACK,BLACK);
+	  ST7735_WriteString(60, 80, adc_y_str, Font_11x18, RED,BLACK);
+
+	  HAL_Delay(1);
 //
 //	  if (conversion_done) {
 //		conversion_done = 0;
@@ -259,8 +264,9 @@ void SystemClock_Config(void)
 
 void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* hadc)
 {
-  adc_x = adc_buff_x;
-  HAL_ADC_Start_DMA(&hadc1, &adc_buff_x, 1);
+  adc_x = adc_buff[0];
+  adc_y = adc_buff[1];
+  HAL_ADC_Start_DMA(&hadc1, &adc_buff, 2);
 }
 
 //void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* hadc) {
