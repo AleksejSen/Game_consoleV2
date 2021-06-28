@@ -105,6 +105,7 @@ int main(void)
   MX_SPI3_Init();
   MX_ADC1_Init();
   MX_TIM1_Init();
+  MX_USART1_UART_Init();
   /* USER CODE BEGIN 2 */
 
 	ST7735_Init(0);
@@ -127,32 +128,44 @@ int main(void)
 	char adc_x_str[8];
 	char adc_y_str[8];
 	int x = 50;
-	int y = 0;
+	int y = 50;
+
+	int color = PURPLE;
 
 	int btn_jst = 0;
 	//conversion_done = 1;
 
-	HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_1);
+	//HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_1);
+
+	//ST7735_DrawImage(50, 50, 10, 8, (uint16_t*)test_img_128x128);
+
+	//ST7735_DrawPixel(50, 50, RED);
+
 	while (1) {
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
 
-		//ST7735_WriteString(60, 80, "BTN", Font_11x18, RED,BLACK);
-		//  btn_jst = HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_4);
-		fillRect(x, 50, 20, 20, GREEN);
+		//fillRect(x, y, 20, 20, color);
+		printf("Test\r\n");
+
+		ST7735_WriteString(30, 30, "Game Console V2", Font_7x10, RED, BLACK);
+		ST7735_WriteString(50, 50, "STM32F4", Font_7x10, RED, BLACK);
+		ST7735_WriteString(10, 70, "by Aleksejs Sencenko", Font_7x10, RED, BLACK);
 
 		if (!HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_4)) {
-
 			ST7735_WriteString(120, 5, "J", Font_7x10, RED, BLACK);
 		} else {
 			ST7735_WriteString(120, 5, " ", Font_7x10, RED, BLACK);
 		}
 
 		if (!HAL_GPIO_ReadPin(GPIOC, GPIO_PIN_7)) {
-
 			ST7735_WriteString(128, 5, "1", Font_7x10, RED, BLACK);
-			HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_1);
+
+//			TIM1->DCR = 30000;
+//			HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_1);
+
+			color += 1;
 		} else {
 			ST7735_WriteString(128, 5, "  ", Font_7x10, RED, BLACK);
 			HAL_TIM_PWM_Stop(&htim1, TIM_CHANNEL_1);
@@ -161,72 +174,60 @@ int main(void)
 		if (!HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_11)) {
 
 			ST7735_WriteString(132, 5, "2", Font_7x10, RED, BLACK);
+
+//			TIM1->DCR =  28000;
+//			HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_1);
+
+			color -= 1;
 		} else {
 			ST7735_WriteString(132, 5, " ", Font_7x10, RED, BLACK);
+			HAL_TIM_PWM_Stop(&htim1, TIM_CHANNEL_1);
 		}
 
 //		itoa(adc_x, adc_x_str, 10);
 //		itoa(adc_y, adc_y_str, 10);
 
-		//ST7735_WriteString(80, 5, adc_x_str, Font_7x10, BLACK,BLACK);
+//ST7735_WriteString(80, 5, adc_x_str, Font_7x10, BLACK,BLACK);
 		if (adc_x < 1700) {
 			ST7735_WriteString(150, 5, "<", Font_7x10, RED, BLACK);
-			--x;
+			if (x < 0) {
+				x = 0;
+			} else {
+				--x;
+			}
+
 		} else if (adc_x > 2300) {
 			ST7735_WriteString(150, 5, ">", Font_7x10, RED, BLACK);
-			++x;
+			if (x > 140) {
+				x = 140;
+			} else {
+				++x;
+			}
+
 		} else {
 			ST7735_WriteString(150, 5, " ", Font_7x10, RED, BLACK);
 		}
 
 		if (adc_y < 1700) {
 			ST7735_WriteString(142, 5, "^", Font_7x10, RED, BLACK);
+			if (y < 0) {
+				y = 0;
+			} else {
+				--y;
+			}
+
 		} else if (adc_y > 2300) {
 			ST7735_WriteString(142, 5, "v", Font_7x10, RED, BLACK);
+			if (y > 100) {
+				y = 100;
+			} else {
+				++y;
+			}
 		} else {
 			ST7735_WriteString(142, 5, " ", Font_7x10, RED, BLACK);
 		}
 
-		// ST7735_WriteString(60, 80, adc_y_str, Font_7x10, BLACK,BLACK);
-		//ST7735_WriteString(60, 5, adc_y_str, Font_7x10, RED, BLACK);
-
 		HAL_Delay(10);
-//
-//	  if (conversion_done) {
-//		conversion_done = 0;
-//
-//		  itoa(adc_x, adc_x_str, 10);
-////		  itoa(adc_y, adc_y_str, 10);
-//
-//		  drawLine(0, 0, 0, 100, GREEN);
-//
-//		  ST7735_WriteString(60, 60, adc_x_str, Font_11x18, BLACK,BLACK);
-//		  ST7735_WriteString(60, 60, adc_x_str, Font_11x18, RED,BLACK);
-//
-////		  ST7735_WriteString(60, 80, adc_y_str, Font_11x18, BLACK,BLACK);
-////		  ST7735_WriteString(60, 80, adc_y_str, Font_11x18, RED,BLACK);
-//	}
-//
-//	  drawLine(0, 0, 0, 100, GREEN);
-//	  ST7735_WriteString(60, 80, adc_y_str, Font_11x18, BLACK,BLACK);
-//	  ST7735_WriteString(60, 80, adc_y_str, Font_11x18, RED,BLACK);
-
-//	  fillRect(5, 5, 50, 50, GREEN);
-//	  HAL_Delay(1000);
-//	  fillRect(5, 5, 50, 50, RED);
-//	  HAL_Delay(1000);
-//	  fillRect(5, 5, 50, 50, BLUE);
-//	  HAL_Delay(1000);
-//	  fillRect(5, 5, 50, 50, YELLOW);
-//	  HAL_Delay(1000);
-
-// drawRGBBitmap(0,0, myBitmapBitmap, 70, 61);
-//ST7735_SetRotation(1);
-//	  ST7735_WriteString(1, 1, "HELLO", Font_11x18, BLACK,BLACK);
-//	  ST7735_WriteString(1, 1, "HELLO", Font_11x18, RED,BLACK);
-
-		//fillScreen(BLACK);
-		//HAL_Delay(5);
 
 	}
   /* USER CODE END 3 */

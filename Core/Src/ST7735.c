@@ -97,12 +97,14 @@ void ST7735_Reset()
   {
     HAL_GPIO_WritePin(DC_PORT, DC_PIN, GPIO_PIN_RESET);
     HAL_SPI_Transmit(&ST7735_SPI_PORT, &cmd, sizeof(cmd), HAL_MAX_DELAY);
+    //HAL_SPI_Transmit_DMA(&ST7735_SPI_PORT, &cmd, sizeof(cmd));
 }
 
 void ST7735_WriteData(uint8_t* buff, size_t buff_size)
 {
     HAL_GPIO_WritePin(DC_PORT, DC_PIN, GPIO_PIN_SET);
     HAL_SPI_Transmit(&ST7735_SPI_PORT, buff, buff_size, HAL_MAX_DELAY);
+   // HAL_SPI_Transmit_DMA(&ST7735_SPI_PORT, buff, buff_size);
 }
 
 void DisplayInit(const uint8_t *addr)
