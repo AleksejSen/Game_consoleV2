@@ -19,6 +19,7 @@
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
+#include "cmsis_os.h"
 #include "adc.h"
 #include "dma.h"
 #include "spi.h"
@@ -33,6 +34,8 @@
 #include "fonts.h"
 #include "GFX_FUNCTIONS.h"
 #include "bitmaps.h"
+
+#include "DebugTask.h"
 
 /* USER CODE END Includes */
 
@@ -63,6 +66,7 @@ uint8_t conversion_done = 0;
 
 /* Private function prototypes -----------------------------------------------*/
 void SystemClock_Config(void);
+void MX_FREERTOS_Init(void);
 /* USER CODE BEGIN PFP */
 
 /* USER CODE END PFP */
@@ -108,22 +112,13 @@ int main(void)
   MX_USART1_UART_Init();
   /* USER CODE BEGIN 2 */
 
-	ST7735_Init(0);
-	fillScreen(BLACK);
-	ST7735_SetRotation(1);
+//	ST7735_Init(0);
+//	fillScreen(BLACK);
+//	ST7735_SetRotation(1);
 //   testAll();
 //   HAL_Delay(1000);
 
-  /* USER CODE END 2 */
-
-  /* Infinite loop */
-  /* USER CODE BEGIN WHILE */
-
 	HAL_ADC_Start_DMA(&hadc1, adc_buff, 2);
-	//  HAL_ADC_Start_DMA(&hadc2, &adc_buff_y, 1);
-
-	//  HAL_ADC_Start_IT(&hadc1);
-//   HAL_ADC_Start_IT(&hadc2);
 
 	char adc_x_str[8];
 	char adc_y_str[8];
@@ -133,6 +128,30 @@ int main(void)
 	int color = PURPLE;
 
 	int btn_jst = 0;
+
+  /* USER CODE END 2 */
+
+  /* Init scheduler */
+  osKernelInitialize();  /* Call init function for freertos objects (in freertos.c) */
+  //MX_FREERTOS_Init();
+  /* Start scheduler */
+  DebugTask debug_task = DebugTask("debug_task", 128 * 4, (osPriority_t) osPriorityNormal);
+  /*Createing task*/
+
+
+  osKernelStart();
+
+  /* We should never get here as control is now taken by the scheduler */
+  /* Infinite loop */
+  /* USER CODE BEGIN WHILE */
+
+
+	//  HAL_ADC_Start_DMA(&hadc2, &adc_buff_y, 1);
+
+	//  HAL_ADC_Start_IT(&hadc1);
+//   HAL_ADC_Start_IT(&hadc2);
+
+
 	//conversion_done = 1;
 
 	//HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_1);
@@ -147,87 +166,87 @@ int main(void)
     /* USER CODE BEGIN 3 */
 
 		//fillRect(x, y, 20, 20, color);
-		printf("Test\r\n");
-
-		ST7735_WriteString(30, 30, "Game Console V2", Font_7x10, RED, BLACK);
-		ST7735_WriteString(50, 50, "STM32F4", Font_7x10, RED, BLACK);
-		ST7735_WriteString(10, 70, "by Aleksejs Sencenko", Font_7x10, RED, BLACK);
-
-		if (!HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_4)) {
-			ST7735_WriteString(120, 5, "J", Font_7x10, RED, BLACK);
-		} else {
-			ST7735_WriteString(120, 5, " ", Font_7x10, RED, BLACK);
-		}
-
-		if (!HAL_GPIO_ReadPin(GPIOC, GPIO_PIN_7)) {
-			ST7735_WriteString(128, 5, "1", Font_7x10, RED, BLACK);
-
-//			TIM1->DCR = 30000;
-//			HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_1);
-
-			color += 1;
-		} else {
-			ST7735_WriteString(128, 5, "  ", Font_7x10, RED, BLACK);
-			HAL_TIM_PWM_Stop(&htim1, TIM_CHANNEL_1);
-		}
-
-		if (!HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_11)) {
-
-			ST7735_WriteString(132, 5, "2", Font_7x10, RED, BLACK);
-
-//			TIM1->DCR =  28000;
-//			HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_1);
-
-			color -= 1;
-		} else {
-			ST7735_WriteString(132, 5, " ", Font_7x10, RED, BLACK);
-			HAL_TIM_PWM_Stop(&htim1, TIM_CHANNEL_1);
-		}
-
-//		itoa(adc_x, adc_x_str, 10);
-//		itoa(adc_y, adc_y_str, 10);
-
-//ST7735_WriteString(80, 5, adc_x_str, Font_7x10, BLACK,BLACK);
-		if (adc_x < 1700) {
-			ST7735_WriteString(150, 5, "<", Font_7x10, RED, BLACK);
-			if (x < 0) {
-				x = 0;
-			} else {
-				--x;
-			}
-
-		} else if (adc_x > 2300) {
-			ST7735_WriteString(150, 5, ">", Font_7x10, RED, BLACK);
-			if (x > 140) {
-				x = 140;
-			} else {
-				++x;
-			}
-
-		} else {
-			ST7735_WriteString(150, 5, " ", Font_7x10, RED, BLACK);
-		}
-
-		if (adc_y < 1700) {
-			ST7735_WriteString(142, 5, "^", Font_7x10, RED, BLACK);
-			if (y < 0) {
-				y = 0;
-			} else {
-				--y;
-			}
-
-		} else if (adc_y > 2300) {
-			ST7735_WriteString(142, 5, "v", Font_7x10, RED, BLACK);
-			if (y > 100) {
-				y = 100;
-			} else {
-				++y;
-			}
-		} else {
-			ST7735_WriteString(142, 5, " ", Font_7x10, RED, BLACK);
-		}
-
-		HAL_Delay(10);
+//		printf("Test\r\n");
+//
+//		ST7735_WriteString(30, 30, "Game Console V2", Font_7x10, RED, BLACK);
+//		ST7735_WriteString(50, 50, "STM32F4", Font_7x10, RED, BLACK);
+//		ST7735_WriteString(10, 70, "by Aleksejs Sencenko", Font_7x10, RED, BLACK);
+//
+//		if (!HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_4)) {
+//			ST7735_WriteString(120, 5, "J", Font_7x10, RED, BLACK);
+//		} else {
+//			ST7735_WriteString(120, 5, " ", Font_7x10, RED, BLACK);
+//		}
+//
+//		if (!HAL_GPIO_ReadPin(GPIOC, GPIO_PIN_7)) {
+//			ST7735_WriteString(128, 5, "1", Font_7x10, RED, BLACK);
+//
+////			TIM1->DCR = 30000;
+////			HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_1);
+//
+//			color += 1;
+//		} else {
+//			ST7735_WriteString(128, 5, "  ", Font_7x10, RED, BLACK);
+//			HAL_TIM_PWM_Stop(&htim1, TIM_CHANNEL_1);
+//		}
+//
+//		if (!HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_11)) {
+//
+//			ST7735_WriteString(132, 5, "2", Font_7x10, RED, BLACK);
+//
+////			TIM1->DCR =  28000;
+////			HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_1);
+//
+//			color -= 1;
+//		} else {
+//			ST7735_WriteString(132, 5, " ", Font_7x10, RED, BLACK);
+//			HAL_TIM_PWM_Stop(&htim1, TIM_CHANNEL_1);
+//		}
+//
+////		itoa(adc_x, adc_x_str, 10);
+////		itoa(adc_y, adc_y_str, 10);
+//
+////ST7735_WriteString(80, 5, adc_x_str, Font_7x10, BLACK,BLACK);
+//		if (adc_x < 1700) {
+//			ST7735_WriteString(150, 5, "<", Font_7x10, RED, BLACK);
+//			if (x < 0) {
+//				x = 0;
+//			} else {
+//				--x;
+//			}
+//
+//		} else if (adc_x > 2300) {
+//			ST7735_WriteString(150, 5, ">", Font_7x10, RED, BLACK);
+//			if (x > 140) {
+//				x = 140;
+//			} else {
+//				++x;
+//			}
+//
+//		} else {
+//			ST7735_WriteString(150, 5, " ", Font_7x10, RED, BLACK);
+//		}
+//
+//		if (adc_y < 1700) {
+//			ST7735_WriteString(142, 5, "^", Font_7x10, RED, BLACK);
+//			if (y < 0) {
+//				y = 0;
+//			} else {
+//				--y;
+//			}
+//
+//		} else if (adc_y > 2300) {
+//			ST7735_WriteString(142, 5, "v", Font_7x10, RED, BLACK);
+//			if (y > 100) {
+//				y = 100;
+//			} else {
+//				++y;
+//			}
+//		} else {
+//			ST7735_WriteString(142, 5, " ", Font_7x10, RED, BLACK);
+//		}
+//
+//		HAL_Delay(10);
 
 	}
   /* USER CODE END 3 */
@@ -282,7 +301,7 @@ void SystemClock_Config(void)
 void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef *hadc) {
 	adc_x = adc_buff[1];
 	adc_y = adc_buff[0];
-	HAL_ADC_Start_DMA(&hadc1, &adc_buff, 2);
+	HAL_ADC_Start_DMA(&hadc1, adc_buff, 2);
 }
 
 //void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* hadc) {

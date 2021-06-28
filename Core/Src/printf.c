@@ -8,6 +8,10 @@
 #include "printf.h"
 #include "usart.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 int __io_putchar(int ch) {
 	uint8_t c[1];
 	c[0] = ch & 0x00FF;
@@ -22,3 +26,7 @@ int _write(int file, char *ptr, int len) {
 	}
 	return len;
 }
+
+#ifdef __cplusplus
+}
+#endif

@@ -1,5 +1,12 @@
 #include <ST7735.h>
 
+
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+
   const uint8_t
   init_cmds1[] = {            // Init for 7735R, part 1 (red or green tab)
     15,                       // 15 commands in list:
@@ -335,4 +342,8 @@ void ST7735_InvertColors(bool invert) {
     ST7735_Unselect();
 }
 
+
+#ifdef __cplusplus
+}
+#endif
 
