@@ -2,9 +2,9 @@
 
 
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+//#ifdef __cplusplus
+//extern "C" {
+//#endif
 
 
   const uint8_t
@@ -343,7 +343,7 @@ void ST7735_InvertColors(bool invert) {
 }
 
 
-#ifdef __cplusplus
-}
-#endif
+//#ifdef __cplusplus
+//}
+//#endif
 

@@ -22,8 +22,7 @@ public:
 
 	FreeRtosTask(/*const*/ char *name, uint32_t stack_size, osPriority_t priority);
 	virtual ~FreeRtosTask();
-	//virtual void CreateTask();
-	//virtual void Run();
+
 };
 
 #endif /* INC_FREERTOSTASK_H_ */

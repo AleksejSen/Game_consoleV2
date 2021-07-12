@@ -26,8 +26,8 @@ void DebugTask::CreateTask() {
 void DebugTask::Run() {
 
 	for (;;) {
-		printf("Debug task Ya know\r\n");
-		osDelay(100);
+		//printf("dbg\r\n");
+		osDelay(400);
 	}
 
 }

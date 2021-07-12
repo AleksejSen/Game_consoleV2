@@ -30,12 +30,15 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include "printf.h"
-#include "ST7735.h"
-#include "fonts.h"
-#include "GFX_FUNCTIONS.h"
-#include "bitmaps.h"
+#include <cstdio>
+//#include "ST7735.h"
+//#include "fonts.h"
+//#include "GFX_FUNCTIONS.h"
+//#include "bitmaps.h"
 
 #include "DebugTask.h"
+#include "JoystickButtonTask.h"
+#include "DisplayTask.h"
 
 /* USER CODE END Includes */
 
@@ -56,11 +59,17 @@
 /* Private variables ---------------------------------------------------------*/
 
 /* USER CODE BEGIN PV */
+
+/*Adc Stuff(Global to be used from ISR)*/
 uint32_t adc_buff[2];
 uint32_t adc_buff_y;
 uint32_t adc_x;
 uint32_t adc_y;
 uint8_t conversion_done = 0;
+
+
+/*ADC queue*/
+extern osMessageQueueId_t AdcQueueHandle;
 
 /* USER CODE END PV */
 
@@ -73,6 +82,28 @@ void MX_FREERTOS_Init(void);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
+
+
+/*Message Queue*/
+
+#define MSGQUEUE_OBJECTS 16                     // number of Message Queue Objects
+
+/*Queue example*/
+typedef struct                                  // object data type
+{
+    uint8_t Buf[32];
+    uint8_t Idx;
+} MSGQUEUE_OBJ_t;
+
+MSGQUEUE_OBJ_t queue_msg;
+osMessageQueueId_t msgQueue;
+/*End Queue example*/
+
+/*ADC Qeue*/
+uint32_t adc_queue_msg[2];
+osMessageQueueId_t adcQueue;
+
+
 
 /* USER CODE END 0 */
 
@@ -120,25 +151,33 @@ int main(void)
 
 	HAL_ADC_Start_DMA(&hadc1, adc_buff, 2);
 
-	char adc_x_str[8];
-	char adc_y_str[8];
-	int x = 50;
-	int y = 50;
-
-	int color = PURPLE;
-
-	int btn_jst = 0;
+//	char adc_x_str[8];
+//	char adc_y_str[8];
+//	int x = 50;
+//	int y = 50;
+//
+//	int color = PURPLE;
+//
+//	int btn_jst = 0;
 
   /* USER CODE END 2 */
 
   /* Init scheduler */
   osKernelInitialize();  /* Call init function for freertos objects (in freertos.c) */
   //MX_FREERTOS_Init();
-  /* Start scheduler */
-  DebugTask debug_task = DebugTask("debug_task", 128 * 4, (osPriority_t) osPriorityNormal);
+
+  /*Create Queue example*/
+ // msgQueue = osMessageQueueNew(MSGQUEUE_OBJECTS, sizeof(MSGQUEUE_OBJ_t), NULL);
+  adcQueue = osMessageQueueNew(MSGQUEUE_OBJECTS, sizeof(adc_queue_msg), NULL);
+
+
   /*Createing task*/
+  DebugTask debug_task = DebugTask("debug_tsk", 128 * 4, (osPriority_t) osPriorityNormal);
+  JoystickButtonTask joystick_task = JoystickButtonTask("joystick_tsk", 128 * 4, (osPriority_t) osPriorityNormal);
+  DisplayTask display_tasl = DisplayTask("display_tsk", 128 * 4, (osPriority_t) osPriorityNormal);
 
 
+  /* Start scheduler */
   osKernelStart();
 
   /* We should never get here as control is now taken by the scheduler */
@@ -299,9 +338,22 @@ void SystemClock_Config(void)
 /* USER CODE BEGIN 4 */
 
 void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef *hadc) {
-	adc_x = adc_buff[1];
-	adc_y = adc_buff[0];
+
+	//printf("adc \r\n");
+
+
+	adc_queue_msg[0] =  adc_buff[0];
+    adc_queue_msg[1] =	adc_buff[1];
+
+
+	osMessageQueuePut(adcQueue, &adc_queue_msg, 0U, 0U);
 	HAL_ADC_Start_DMA(&hadc1, adc_buff, 2);
+
+
+//	adc_x = adc_buff[1];
+//	adc_y = adc_buff[0];
+
+//	HAL_ADC_Start_DMA(&hadc1, adc_buff, 2);
 }
 
 //void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* hadc) {
